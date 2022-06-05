@@ -101,8 +101,9 @@ def get_parameteres_data(id):
     data_request = data_from_sensor + str(id)
     response = requests.get(data_request)
     data = response.json()
-    print(data)
-    print(data['values'][0]['date'], data['values'][0]['value'])
+    measurement_time = data['values'][0]['date']
+    measurement_value = data['values'][0]['value']
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -111,9 +112,6 @@ if __name__ == '__main__':
     # get_request_details(93941) #dva
     # ListaStacji()
     get_sensors_data(291)
-    # get_parameteres_data(2039)
-
-
-
+    get_parameteres_data(2039)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
