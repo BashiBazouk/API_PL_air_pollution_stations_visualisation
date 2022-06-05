@@ -10,9 +10,10 @@ import json
 tech_key = '&TECHNICIAN_KEY=29992A0F-7D93-4461-A561-33889A8B0BD0&format=json'
 stacje = 'https://api.gios.gov.pl/pjp-api/rest/station/findAll'
 sensors = 'https://api.gios.gov.pl/pjp-api/rest/station/sensors/'
+data_from_sensor = 'https://api.gios.gov.pl/pjp-api/rest/data/getData/'
 def get_request_details(request_id):
     url = 'http://dkvdc-sdwl0001.dovista.org:/sdpapi/request/93941'
-    print("url =",url)
+    print("url =", url)
     parameters = '&OPERATION_NAME=GET_REQUEST_FIELDS'
     input_data = """{
         "operation": {
@@ -88,10 +89,20 @@ def get_sensors_data(id):
     response = requests.get(data_request)
     data = response.json()
     param_list = []
+    param_id = []
     print(data)
     for parameters in range(len(data)):
         param_list.append(data[parameters]['param']['paramName'])
+        param_id.append(data[parameters]['id'])
+    print(param_id)
     print(param_list)
+
+def get_parameteres_data(id):
+    data_request = data_from_sensor + str(id)
+    response = requests.get(data_request)
+    data = response.json()
+    print(data)
+    print(data['values'][0]['date'], data['values'][0]['value'])
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -100,7 +111,7 @@ if __name__ == '__main__':
     # get_request_details(93941) #dva
     # ListaStacji()
     get_sensors_data(291)
-
+    # get_parameteres_data(2039)
 
 
 
