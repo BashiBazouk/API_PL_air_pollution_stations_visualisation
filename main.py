@@ -4,6 +4,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import requests
 import json
+import plotly.graph_objects as go
 
 #wgr api key 745637C5-C372-472B-8F0D-29E16B3074E9
 #key = '745637C5-C372-472B-8F0D-29E16B3074E9'
@@ -80,38 +81,121 @@ def ListaStacji():
         stations_latitude.append(data[station]['gegrLat'])
         stations_longitude.append(data[station]['gegrLon'])
 
+    parameters_texts = []
 
-    print(stations_id)
+    for id in stations_id:
+        parameters_text = get_sensors_data(id)
+        parameters_texts.append(parameters_text)
+    print(parameters_texts[0])
+
+    # create_Map(stations_latitude,stations_longitude,stations_names, parameters_texts)
 
 def get_sensors_data(id):
     data_request = sensors +str(id)
-    print(data_request)
     response = requests.get(data_request)
     data = response.json()
     param_list = []
     param_id = []
-    print(data)
+
     for parameters in range(len(data)):
         param_list.append(data[parameters]['param']['paramName'])
         param_id.append(data[parameters]['id'])
-    print(param_id)
-    print(param_list)
+
+    measurement_values = []
+    measurement_times = []
+    for id in param_id:
+        measurement_time, measurement_value = get_parameteres_data(id)
+        measurement_values.append(measurement_value)
+        measurement_times.append(measurement_time)
+
+    text = ""
+    for item in range(len(param_list)):
+        text = text + f'{param_list[item]} : \t {measurement_values[item]} pomiar o: \t {measurement_times[item]}\n'
+    # print(f'ID stacji: {id}\n{text}')
+    return text
 
 def get_parameteres_data(id):
     data_request = data_from_sensor + str(id)
+
     response = requests.get(data_request)
     data = response.json()
-    measurement_time = data['values'][0]['date']
-    measurement_value = data['values'][0]['value']
+    # print(data)
+    try:
+        measurement_time = data['values'][0]['date']
+    except TypeError:
+        measurement_time = 'n/a'
+    except IndexError:
+        measurement_time = 'n/a'
+    try:
+        measurement_value = data['values'][0]['value']
+    except TypeError:
+        measurement_value = 'n/a'
+    except IndexError:
+        measurement_value = 'n/a'
 
+    # print(measurement_value, measurement_time)
+    return measurement_time,  measurement_value
+
+def create_Map(latitude_list, longitude_list, name_list, text_list):
+    # Use a breakpoint in the code line below to debug your script.
+
+    mapbox_access_token = open(".mapbox_token").read()
+    # https://stackoverflow.com/questions/42753745/how-can-i-parse-geojson-with-python
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scattermapbox(
+        lat=latitude_list,
+        lon=longitude_list,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=17,
+            color='rgb(255, 0 , 0)',
+            opacity=0.7
+        ),
+        text=name_list,
+        hoverinfo='text'
+    ))
+
+    fig.add_trace(go.Scattermapbox(
+        lat=latitude_list,
+        lon=longitude_list,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=8,
+            color='rgb(242, 177, 172)',
+            opacity=0.7
+        ),
+        text=text_list,
+        hoverinfo='text'
+    ))
+
+    fig.update_layout(
+        title='Stacje pogodowe',
+        autosize=True,
+        hovermode='closest',
+        showlegend=True,
+        mapbox=dict(
+            accesstoken=mapbox_access_token,
+            bearing=0,
+            center=dict(
+                lat=53,
+                lon=-8
+            ),
+            pitch=0,
+            zoom=3,
+            style='light'
+        ),
+    )
+    fig.show()
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # https://powietrze.gios.gov.pl/pjp/content/api
     # get_all_requests('PyCharm') #dva
     # get_request_details(93941) #dva
-    # ListaStacji()
-    get_sensors_data(291)
-    get_parameteres_data(2039)
+    ListaStacji()
+    # get_sensors_data(291)
+    # get_parameteres_data(10120)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
