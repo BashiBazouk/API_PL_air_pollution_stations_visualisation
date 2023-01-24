@@ -38,7 +38,7 @@ def ListaStacji():
         parameters_texts.append(parameters_text)
         print(f'data for sensor id:{id} \t taken. It took {round((time.time() - start),2)}')
     print('sensors data acquired')
-    #return parameters_texts
+    
 
     create_Map(stations_latitude,stations_longitude,stations_names, parameters_texts)
 
@@ -63,8 +63,8 @@ def get_sensors_data(id):
 
     text = ""
     for item in range(len(param_list)):
-        text = text  + f'{param_list[item]} : \t {measurement_values[item]} pomiar o: \t {measurement_times[item]}<br>'
-    # print(f'ID stacji: {id}\n{text}')
+        text = text  + f'{param_list[item]} : \t {measurement_values[item]} measured at: \t {measurement_times[item]}<br>'
+    
     print(f'get sensor data took {round((time.time() - start),2)}')
     return text
 
@@ -95,7 +95,7 @@ def get_parameteres_data(id):
 def create_Map(latitude_list, longitude_list, name_list, text_list):
     # function to create map with stations and info hovering on them
 
-    mapbox_access_token = open(".mapbox_token").read()
+    mapbox_access_token = open("mapbox_token").read()
     # https://stackoverflow.com/questions/42753745/how-can-i-parse-geojson-with-python
 
     fig = go.Figure()
@@ -127,7 +127,7 @@ def create_Map(latitude_list, longitude_list, name_list, text_list):
     ))
 
     fig.update_layout(
-        title='Stacje pogodowe',
+        title='Air Pollution Stations',
         autosize=True,
         hovermode='closest',
         showlegend=True,
@@ -149,7 +149,7 @@ if __name__ == '__main__':
     
     ListaStacji()
 
-    #just some testing
+    #just some testing `<br>
     # get_sensors_data(291)
     # get_parameteres_data(10120)
 
